@@ -5,6 +5,20 @@ import Queue from '../Queue/Queue.js'
 
 const log = getLogger('Media')
 
+export interface MediaScanRow {
+  mediaId: number
+  songId: number
+  pathId: number
+  relPath: string
+  duration: number
+  rgTrackGain?: number | null
+  rgTrackPeak?: number | null
+  fileSize: number
+  fileMtimeMs: number
+  sidecarSize: number
+  sidecarMtimeMs: number
+}
+
 class Media {
   /**
    * Get media matching all search criteria
@@ -40,6 +54,25 @@ class Media {
     }
 
     return media
+  }
+
+  /**
+   * Get lightweight media rows for scanner reconciliation.
+   */
+  static scanRows (pathId: number): Record<string, MediaScanRow> {
+    const rowsByRelPath: Record<string, MediaScanRow> = {}
+    const query = sql`
+      SELECT *
+      FROM media
+      WHERE pathId = ${pathId}
+    `
+    const rows = db.all<MediaScanRow>(String(query), query.parameters)
+
+    for (const row of rows) {
+      rowsByRelPath[row.relPath] = row
+    }
+
+    return rowsByRelPath
   }
 
   /**
@@ -109,6 +142,7 @@ class Media {
    */
   static cleanup (): void {
     let res
+    let totalChanges = 0
 
     // remove media in nonexistent paths
     res = db.run(`
@@ -116,6 +150,7 @@ class Media {
         SELECT media.mediaId FROM media LEFT JOIN paths USING(pathId) WHERE paths.pathId IS NULL
       )
     `)
+    totalChanges += res.changes
     log.info(`cleanup: ${res.changes} media in nonexistent paths`)
 
     // remove songs without associated media
@@ -124,6 +159,7 @@ class Media {
         SELECT songs.songId FROM songs LEFT JOIN media USING(songId) WHERE media.mediaId IS NULL
       )
     `)
+    totalChanges += res.changes
     log.info(`cleanup: ${res.changes} songs with no associated media`)
 
     // remove stars for nonexistent songs
@@ -132,6 +168,7 @@ class Media {
         SELECT songStars.songId FROM songStars LEFT JOIN songs USING(songId) WHERE songs.songId IS NULL
       )
     `)
+    totalChanges += res.changes
     log.info(`cleanup: ${res.changes} stars for nonexistent songs`)
 
     // remove queue items for nonexistent songs
@@ -143,10 +180,13 @@ class Media {
       Queue.remove(row.queueId)
     }
 
+    totalChanges += rows.length
     log.info(`cleanup: ${rows.length} queue items for nonexistent songs`)
 
-    log.info('cleanup: vacuuming database')
-    db.run('VACUUM')
+    if (totalChanges) {
+      log.info('cleanup: vacuuming database')
+      db.run('VACUUM')
+    }
   }
 
   /**
