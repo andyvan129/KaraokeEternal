@@ -43,7 +43,6 @@ m.set('split', (ctx, next) => {
   }
 
   const longest = matches.reduce((a, b) => a.length > b.length ? a : b)
-  ctx.splitDelimiter = longest
   ctx.parts = ctx.name.split(longest)
 
   if (ctx.parts.length < 2) {
@@ -64,7 +63,8 @@ m.set('set title', (ctx, next) => {
   // skip if already set
   if (ctx.title) return next()
 
-  ctx.title = ctx.cfg.artistOnLeft ? ctx.parts.slice(1).join(ctx.splitDelimiter) : ctx.parts.shift()
+  // @todo this assumes delimiter won't appear in title
+  ctx.title = ctx.cfg.artistOnLeft ? ctx.parts.pop() : ctx.parts.shift()
   ctx.title = ctx.title.trim()
   next()
 })
@@ -74,7 +74,7 @@ m.set('set artist', (ctx, next) => {
   // skip if already set
   if (ctx.artist) return next()
 
-  ctx.artist = ctx.cfg.artistOnLeft ? ctx.parts[0] : ctx.parts.join(ctx.splitDelimiter)
+  ctx.artist = ctx.parts.join(ctx.cfg.delimiter)
   ctx.artist = ctx.artist.trim()
   next()
 })

@@ -32,10 +32,10 @@ exports[`MetaParser > should parse all test filenames correctly 1`] = `
   {
     "input": "ABC-1234-THE LIFE OF RILEY-LIGHTNING SEEDS, THE",
     "output": {
-      "artist": "ABC",
-      "artistNorm": "ABC",
-      "title": "1234-THE LIFE OF RILEY-LIGHTNING SEEDS, THE",
-      "titleNorm": "1234THE LIFE OF RILEYLIGHTNING SEEDS",
+      "artist": "ABC-1234-THE LIFE OF RILEY",
+      "artistNorm": "ABC1234THE LIFE OF RILEY",
+      "title": "LIGHTNING SEEDS, THE",
+      "titleNorm": "LIGHTNING SEEDS",
     },
   },
   {
@@ -284,19 +284,10 @@ exports[`MetaParser > should parse all test filenames correctly 1`] = `
   {
     "input": "Disney - 101 Dalmations - Cruella De Vil",
     "output": {
-      "artist": "Disney",
-      "artistNorm": "Disney",
-      "title": "101 Dalmations - Cruella De Vil",
-      "titleNorm": "101 Dalmations  Cruella De Vil",
-    },
-  },
-  {
-    "input": "Artist - Title - Subtitle",
-    "output": {
-      "artist": "Artist",
-      "artistNorm": "Artist",
-      "title": "Title - Subtitle",
-      "titleNorm": "Title  Subtitle",
+      "artist": "Disney-101 Dalmations",
+      "artistNorm": "Disney101 Dalmations",
+      "title": "Cruella De Vil",
+      "titleNorm": "Cruella De Vil",
     },
   },
   {
@@ -367,10 +358,10 @@ exports[`MetaParser > should parse: AB1234Z-01 - Scott, Linda - I've Told Every 
 
 exports[`MetaParser > should parse: ABC-1234-THE LIFE OF RILEY-LIGHTNING SEEDS, THE 1`] = `
 {
-  "artist": "ABC",
-  "artistNorm": "ABC",
-  "title": "1234-THE LIFE OF RILEY-LIGHTNING SEEDS, THE",
-  "titleNorm": "1234THE LIFE OF RILEYLIGHTNING SEEDS",
+  "artist": "ABC-1234-THE LIFE OF RILEY",
+  "artistNorm": "ABC1234THE LIFE OF RILEY",
+  "title": "LIGHTNING SEEDS, THE",
+  "titleNorm": "LIGHTNING SEEDS",
 }
 `;
 
@@ -416,15 +407,6 @@ exports[`MetaParser > should parse: Ain't Too Proud To Beg in the style of The R
   "artistNorm": "Rolling Stones  karaoke video with lyrics",
   "title": "Ain't Too Proud To Beg",
   "titleNorm": "Aint Too Proud To Beg",
-}
-`;
-
-exports[`MetaParser > should parse: Artist - Title - Subtitle 1`] = `
-{
-  "artist": "Artist",
-  "artistNorm": "Artist",
-  "title": "Title - Subtitle",
-  "titleNorm": "Title  Subtitle",
 }
 `;
 
@@ -520,10 +502,10 @@ exports[`MetaParser > should parse: Craig McLachlan & Check 1-2 - Mona [ABC Kara
 
 exports[`MetaParser > should parse: Disney - 101 Dalmations - Cruella De Vil 1`] = `
 {
-  "artist": "Disney",
-  "artistNorm": "Disney",
-  "title": "101 Dalmations - Cruella De Vil",
-  "titleNorm": "101 Dalmations  Cruella De Vil",
+  "artist": "Disney-101 Dalmations",
+  "artistNorm": "Disney101 Dalmations",
+  "title": "Cruella De Vil",
+  "titleNorm": "Cruella De Vil",
 }
 `;
 

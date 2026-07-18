@@ -11,12 +11,9 @@ export interface MediaScanRow {
   pathId: number
   relPath: string
   duration: number
+  dateUpdated: number
   rgTrackGain?: number | null
   rgTrackPeak?: number | null
-  fileSize: number
-  fileMtimeMs: number
-  sidecarSize: number
-  sidecarMtimeMs: number
 }
 
 class Media {

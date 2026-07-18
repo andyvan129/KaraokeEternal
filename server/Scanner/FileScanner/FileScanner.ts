@@ -1,6 +1,5 @@
 import path from 'path'
 import fsPromises from 'node:fs/promises'
-import fs from 'fs'
 import { parseBuffer, parseFile } from 'music-metadata'
 import { unzip } from 'unzipit'
 import getLogger from '../../lib/Log.js'
@@ -21,11 +20,8 @@ const searchExts = Object.keys(fileTypes).filter(ext => fileTypes[ext].scan !== 
 
 interface MediaIdentity {
   relPath: string
-  fileSize: number
-  fileMtimeMs: number
+  fileMtime: number
   sidecarPath: string | false | null
-  sidecarSize: number
-  sidecarMtimeMs: number
 }
 
 class FileScanner extends Scanner {
@@ -177,10 +173,7 @@ class FileScanner extends Scanner {
       duration: Math.round(data.format.duration),
       rgTrackGain: data.common.replaygain_track_gain ? data.common.replaygain_track_gain.dB : null,
       rgTrackPeak: data.common.replaygain_track_peak ? data.common.replaygain_track_peak.ratio : null,
-      fileSize: mediaIdentity.fileSize,
-      fileMtimeMs: mediaIdentity.fileMtimeMs,
-      sidecarSize: mediaIdentity.sidecarSize,
-      sidecarMtimeMs: mediaIdentity.sidecarMtimeMs,
+      dateUpdated: mediaIdentity.fileMtime,
     }
 
     if (row) {
@@ -196,7 +189,6 @@ class FileScanner extends Scanner {
           type: MEDIA_UPDATE,
           payload: {
             mediaId: row.mediaId,
-            dateUpdated: Math.round(new Date().getTime() / 1000), // seconds
             ...diff,
           },
         })
@@ -234,29 +226,19 @@ class FileScanner extends Scanner {
 
   getMediaIdentity (file, stats, pathId): MediaIdentity {
     const sidecarPath = fileTypes[getExt(file)].requiresCDG ? getCdgName(file) : null
-    let sidecarStats
-
-    if (sidecarPath) {
-      sidecarStats = fs.statSync(sidecarPath)
-    }
 
     return {
       // normalize relPath to forward slashes with no leading slash
       relPath: file.substring(this.paths.entities[pathId].path.length).replace(/\\/g, '/').replace(/^\//, ''),
-      fileSize: stats.size,
-      fileMtimeMs: Math.round(stats.mtimeMs),
+      fileMtime: Math.round(stats.mtimeMs / 1000),
       sidecarPath,
-      sidecarSize: sidecarStats?.size || 0,
-      sidecarMtimeMs: sidecarStats ? Math.round(sidecarStats.mtimeMs) : 0,
     }
   }
 
   isUnchanged (row: MediaScanRow, mediaIdentity: MediaIdentity) {
-    return row.fileSize > 0
-      && row.fileSize === mediaIdentity.fileSize
-      && row.fileMtimeMs === mediaIdentity.fileMtimeMs
-      && row.sidecarSize === mediaIdentity.sidecarSize
-      && row.sidecarMtimeMs === mediaIdentity.sidecarMtimeMs
+    return row.dateUpdated > 0
+      && row.dateUpdated === mediaIdentity.fileMtime
+      && (fileTypes[getExt(mediaIdentity.relPath)].requiresCDG ? Boolean(mediaIdentity.sidecarPath) : true)
   }
 }
 
