@@ -43,6 +43,7 @@ describe('MetaParser', () => {
     'Az 1234-01 - Boney-M - Daddy Cool',
     `UB40 - Homely Girl`,
     `Disney - 101 Dalmations - Cruella De Vil`,
+    `Artist - Title - Subtitle`,
     // ensure unicode is being passed through correctly
     `ちゃんみな - 「ハレンチ」`,
     `ちゃんみな - 花火`,
